@@ -14,6 +14,7 @@ using Microsoft.Extensions.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Gcpe.Hub.NRMS
 {
@@ -42,6 +43,16 @@ namespace Gcpe.Hub.NRMS
                 .AddJsonOptions(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info
+                {
+                    Version = "Alpha",
+                    Title = "BC Gov NRMS API service",
+                    Description = "The .net Core 2.1 API for the News Release Management System (NRMS)"
+                });
+            });
+
             services.AddHealthChecks(checks =>
             {
                 checks.AddSqlCheck("Gcpe.Hub", Configuration["HubDbContext"]);
@@ -62,6 +73,12 @@ namespace Gcpe.Hub.NRMS
 
             app.UseHttpsRedirection();
             app.UseMvc();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "BC Gov NRMS API service");
+            });
         }
     }
 }
