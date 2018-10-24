@@ -1,12 +1,14 @@
 using AutoMapper;
 using Gcpe.Hub.NRMS.Controllers;
 using Gcpe.Hub.NRMS.Data;
+using Gcpe.Hub.NRMS.Helpers;
 using Gcpe.Hub.NRMS.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
+using System.Linq;
 
 namespace Gcpe.Hub.NRMS.Tests.ControllerTests
 {
@@ -27,11 +29,11 @@ namespace Gcpe.Hub.NRMS.Tests.ControllerTests
 
             var controller = new NewsReleasesController(mockRepository.Object, mockLogger.Object, mockMapper.Object);
 
-            var result = controller.Get("2018DOESNOTEXIST-000000");
+            var result = controller.GetById("2018DOESNOTEXIST-000000");
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
 
 
-            var httpResult = controller.Get("2018PREM1234-123456");
+            var httpResult = controller.GetById("2018PREM1234-123456");
             Assert.IsInstanceOfType(httpResult, typeof(OkObjectResult));
         }
 
@@ -49,8 +51,10 @@ namespace Gcpe.Hub.NRMS.Tests.ControllerTests
 
             var controller = new NewsReleasesController(mockRepository.Object, mockLogger.Object, mockMapper.Object);
 
-            var httpResult = controller.Get();
-            Assert.IsInstanceOfType(httpResult, typeof(OkObjectResult));
+            var paginationParams = new NewsReleaseParams();
+            var results = controller.GetResultsPage(paginationParams);
+
+            Assert.AreEqual(paginationParams.PageSize, results.Count());
         }
 
         [TestMethod]
@@ -89,7 +93,7 @@ namespace Gcpe.Hub.NRMS.Tests.ControllerTests
 
             var controller = new NewsReleasesController(mockRepository.Object, mockLogger.Object, mockMapper.Object);
 
-            var result = controller.Get("2018DOESNOTEXIST-000000");
+            var result = controller.GetById("2018DOESNOTEXIST-000000");
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
 
             var httpResult = controller.Put(release.Key, release);
@@ -114,7 +118,7 @@ namespace Gcpe.Hub.NRMS.Tests.ControllerTests
             Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
 
 
-            var httpResult = controller.Get("2018PREM1234-123456");
+            var httpResult = controller.GetById("2018PREM1234-123456");
             Assert.IsInstanceOfType(httpResult, typeof(OkObjectResult));
         }
     }
